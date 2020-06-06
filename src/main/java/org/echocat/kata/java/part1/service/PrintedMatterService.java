@@ -6,9 +6,12 @@ import org.echocat.kata.java.part1.dao.PrintedMatterDao;
 import org.echocat.kata.java.part1.exception.AuthorNotFoundException;
 import org.echocat.kata.java.part1.model.Author;
 import org.echocat.kata.java.part1.model.Book;
+import org.echocat.kata.java.part1.model.Magazine;
 import org.echocat.kata.java.part1.model.PrintedMatter;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +22,8 @@ public class PrintedMatterService {
     public static final String AUTHOR_PATH = "src/main/resources/org/echocat/kata/java/part1/data/authors.csv";
     public static final String BOOK_PATH = "src/main/resources/org/echocat/kata/java/part1/data/books.csv";
     public static final String MAGAZINE_PATH = "src/main/resources/org/echocat/kata/java/part1/data/magazines.csv";
+
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private CsvService csvService = new CsvService();
     private AuthorsDao authorsDao = new AuthorsDao();
@@ -31,7 +36,7 @@ public class PrintedMatterService {
     }
 
     private void readMagazines() {
-        csvService.readFile(MAGAZINE_PATH).stream().map(this::buildBook).forEach(printedMatterDao::put);
+        csvService.readFile(MAGAZINE_PATH).stream().map(this::buildMagazine).forEach(printedMatterDao::put);
     }
 
     private void readBooks() {
@@ -48,6 +53,15 @@ public class PrintedMatterService {
                 .isbn(record.get("isbn"))
                 .authors(toAuthors(record.get("authors")))
                 .description(record.get("description"))
+                .build();
+    }
+
+    private Magazine buildMagazine(CSVRecord record) {
+        return Magazine.builder()
+                .title(record.get("title"))
+                .isbn(record.get("isbn"))
+                .authors(toAuthors(record.get("authors")))
+                .publishedAt(LocalDate.parse(record.get("publishedAt"), DATE_TIME_FORMATTER))
                 .build();
     }
 
