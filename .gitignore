@@ -32,6 +32,7 @@ Temporary Items
 ### JetBrains
 # User-specific stuff:
 .idea
+*.iml
 *.iws
 *.ipr
 .idea_modules/
