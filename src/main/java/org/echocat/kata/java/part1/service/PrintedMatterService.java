@@ -1,15 +1,16 @@
 package org.echocat.kata.java.part1.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVRecord;
 import org.echocat.kata.java.part1.dao.AuthorsDao;
 import org.echocat.kata.java.part1.dao.PrintedMatterDao;
 import org.echocat.kata.java.part1.exception.AuthorNotFoundException;
+import org.echocat.kata.java.part1.exception.NotFoundByIsbnException;
 import org.echocat.kata.java.part1.model.Author;
 import org.echocat.kata.java.part1.model.Book;
 import org.echocat.kata.java.part1.model.Magazine;
 import org.echocat.kata.java.part1.model.PrintedMatter;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
+@Slf4j
 public class PrintedMatterService {
     public static final String AUTHOR_PATH = "src/main/resources/org/echocat/kata/java/part1/data/authors.csv";
     public static final String BOOK_PATH = "src/main/resources/org/echocat/kata/java/part1/data/books.csv";
@@ -33,6 +35,19 @@ public class PrintedMatterService {
         readAuthors();
         readBooks();
         readMagazines();
+    }
+
+    public PrintedMatter findPrintedMatterByIsbn(String isbn) {
+        Optional<PrintedMatter> printedMatterOpt = printedMatterDao.get(isbn);
+        log.info(printedMatterOpt.map(PrintedMatter::toString)
+                .orElse(String.format("Can not find book or magazine by ISBN %s", isbn)));
+        return printedMatterOpt.orElseThrow(() -> new NotFoundByIsbnException(isbn));
+    }
+
+    public List<PrintedMatter> findPrintedMatterByAuthorEmail(String email) {
+        List<PrintedMatter> printedMatters = printedMatterDao.getByAuthorEmail(email);
+        log.info(printedMatters.toString());
+        return printedMatters;
     }
 
     private void readMagazines() {
